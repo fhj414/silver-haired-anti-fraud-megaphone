@@ -5,20 +5,22 @@ import { FavoriteButton } from "@/components/FavoriteButton";
 import { InlineSpeakButton } from "@/components/InlineSpeakButton";
 import { PageHeader } from "@/components/PageHeader";
 import { RiskBadge } from "@/components/RiskBadge";
-import { getScamById, scams } from "@/data/scams";
+import { scams as fallbackScams } from "@/data/scams";
 import { formatDate } from "@/lib/date";
-import { getScamFullAudio } from "@/lib/pageText";
+import { getScamById, getScamFullAudioFromScam } from "@/lib/scams";
+
+export const revalidate = 3600;
 
 export function generateStaticParams() {
-  return scams.map((scam) => ({ id: scam.id }));
+  return fallbackScams.map((scam) => ({ id: scam.id }));
 }
 
-export default function ScamDetailPage({ params }: { params: { id: string } }) {
+export default async function ScamDetailPage({ params }: { params: { id: string } }) {
   const { id } = params;
-  const scam = getScamById(id);
+  const scam = await getScamById(id);
   if (!scam) notFound();
 
-  const fullAudio = getScamFullAudio(scam.id);
+  const fullAudio = getScamFullAudioFromScam(scam);
 
   return (
     <main className="pb-12">

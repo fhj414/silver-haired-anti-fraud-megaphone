@@ -5,10 +5,13 @@ import { EmergencyPanel } from "@/components/EmergencyPanel";
 import { PageHeader } from "@/components/PageHeader";
 import { ScamCard } from "@/components/ScamCard";
 import { SituationCard } from "@/components/SituationCard";
-import { scams } from "@/data/scams";
 import { situations } from "@/data/situations";
+import { getScamFeed } from "@/lib/scams";
 
-export default function Home() {
+export const revalidate = 3600;
+
+export default async function Home() {
+  const { scams, sourceUrl, updatedAt, usingFallback } = await getScamFeed();
   const today = scams[0];
   const latest = scams.slice(0, 6);
   const firstSituations = situations.slice(0, 6);
@@ -30,6 +33,10 @@ export default function Home() {
       <div className="safe-container grid gap-6">
         <section className="safe-card rounded-[1.5rem] p-5">
           <p className="text-[0.95rem] font-bold text-[#b42318]">今日重点提醒</p>
+          <p className="mt-1 text-[0.85rem] font-bold text-[#5f4215]">
+            {usingFallback ? "远程数据暂不可用，正在显示兜底提醒" : "已从远程数据源拉取"}
+            {updatedAt ? ` · 更新于 ${updatedAt.slice(0, 10)}` : ""}
+          </p>
           <h2 className="mt-2 text-[1.6rem] font-black leading-tight text-[#111827]">{today.title}</h2>
           <p className="mt-3 text-[1.1rem] text-[#374151]">{today.audioText}</p>
           <Link
@@ -52,6 +59,7 @@ export default function Home() {
               <ScamCard scam={scam} key={scam.id} />
             ))}
           </div>
+          <p className="mt-4 break-all text-[0.85rem] font-bold text-[#5f4215]">数据源：{sourceUrl}</p>
         </section>
 
         <section>
