@@ -73,6 +73,40 @@ SCAMS_SOURCE_URL=https://你的域名/scams.json
 
 远程源不可用时，页面会自动显示内置兜底数据，避免老人看到空页面。
 
+## 自动刷新骗局数据
+
+项目内置 Vercel Cron，每天 UTC 02:00 调用：
+
+```text
+/api/refresh-scams
+```
+
+这个接口会拉取可信来源网页，调用 OpenRouter 把内容整理成老人能听懂的骗局 JSON，然后通过 GitHub Contents API 写回 `data/scams.remote.json`。
+
+Vercel 需要配置这些环境变量：
+
+```text
+CRON_SECRET=一个足够长的随机字符串
+OPENROUTER_API_KEY=你的 OpenRouter API Key
+OPENROUTER_MODEL=openai/gpt-4o-mini
+GITHUB_TOKEN=有 contents:write 权限的 GitHub fine-grained token
+GITHUB_REPO=fhj414/silver-haired-anti-fraud-megaphone
+GITHUB_BRANCH=main
+OFFICIAL_SOURCE_URLS=https://www.gov.cn/lianbo/bumen/202506/content_7028568.htm,https://www.mps.gov.cn/,https://www.samr.gov.cn/
+NEXT_PUBLIC_SITE_URL=https://你的 Vercel 域名
+```
+
+`OPENROUTER_MODEL`、`GITHUB_REPO`、`GITHUB_BRANCH`、`OFFICIAL_SOURCE_URLS`、`NEXT_PUBLIC_SITE_URL` 都有默认值或可选值，但生产环境建议显式配置。
+
+手动触发刷新：
+
+```bash
+curl -X POST https://你的域名/api/refresh-scams \
+  -H "Authorization: Bearer $CRON_SECRET"
+```
+
+注意：大模型只负责“整理和改写”，不应该凭空生成事实。请尽量把 `OFFICIAL_SOURCE_URLS` 配成公安、国家反诈、政府、监管部门等可信来源。
+
 ## 如何新增骗局数据
 
 打开 `data/scams.ts`，在 `scams` 数组里新增一条数据，字段保持一致：
