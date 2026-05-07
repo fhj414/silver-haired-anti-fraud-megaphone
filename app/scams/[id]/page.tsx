@@ -5,15 +5,11 @@ import { FavoriteButton } from "@/components/FavoriteButton";
 import { InlineSpeakButton } from "@/components/InlineSpeakButton";
 import { PageHeader } from "@/components/PageHeader";
 import { RiskBadge } from "@/components/RiskBadge";
-import { scams as fallbackScams } from "@/data/scams";
 import { formatDate } from "@/lib/date";
 import { getScamById, getScamFullAudioFromScam } from "@/lib/scams";
 
 export const revalidate = 3600;
-
-export function generateStaticParams() {
-  return fallbackScams.map((scam) => ({ id: scam.id }));
-}
+export const dynamic = "force-dynamic";
 
 export default async function ScamDetailPage({ params }: { params: { id: string } }) {
   const { id } = params;

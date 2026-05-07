@@ -9,6 +9,7 @@ import { situations } from "@/data/situations";
 import { getScamFeed } from "@/lib/scams";
 
 export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 
 export default async function Home() {
   const { scams, sourceUrl, updatedAt, usingFallback } = await getScamFeed();
