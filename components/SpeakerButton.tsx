@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { SpeechFallbackDialog } from "@/components/SpeechFallbackDialog";
 import { isSpeechSupported, speak, stopSpeak } from "@/lib/speech";
 
 type SpeakerButtonProps = {
@@ -11,6 +12,7 @@ type SpeakerButtonProps = {
 
 export function SpeakerButton({ text, className = "", label = "大喇叭" }: SpeakerButtonProps) {
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [showFallback, setShowFallback] = useState(false);
 
   useEffect(() => {
     if (!isSpeechSupported()) return;
@@ -29,20 +31,28 @@ export function SpeakerButton({ text, className = "", label = "大喇叭" }: Spe
       return;
     }
 
+    if (!isSpeechSupported()) {
+      setShowFallback(true);
+      return;
+    }
+
     const ok = speak(text);
     if (ok) setIsSpeaking(true);
   }
 
   return (
-    <button
-      aria-label={isSpeaking ? "停止播报" : label}
-      className={`fixed right-3 top-3 z-50 flex min-h-16 items-center justify-center gap-2 rounded-full border-4 border-white bg-[#b42318] px-5 py-3 text-[0.95rem] font-bold leading-tight text-white shadow-xl transition hover:bg-[#8a1c14] sm:right-6 sm:top-6 ${className}`}
-      onClick={handleClick}
-      type="button"
-    >
-      {!isSpeaking ? <MegaphoneIcon /> : null}
-      <span>{isSpeaking ? "停止播报" : "听"}</span>
-    </button>
+    <>
+      <button
+        aria-label={isSpeaking ? "停止播报" : label}
+        className={`fixed right-3 top-3 z-50 flex min-h-16 items-center justify-center gap-2 rounded-full border-4 border-white bg-[#b42318] px-5 py-3 text-[0.95rem] font-bold leading-tight text-white shadow-xl transition hover:bg-[#8a1c14] sm:right-6 sm:top-6 ${className}`}
+        onClick={handleClick}
+        type="button"
+      >
+        {!isSpeaking ? <MegaphoneIcon /> : null}
+        <span>{isSpeaking ? "停止播报" : "听"}</span>
+      </button>
+      <SpeechFallbackDialog text={text} open={showFallback} onClose={() => setShowFallback(false)} />
+    </>
   );
 }
 

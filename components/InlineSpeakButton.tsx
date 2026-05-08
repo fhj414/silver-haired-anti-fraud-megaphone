@@ -2,10 +2,12 @@
 
 import { useState } from "react";
 import { BigButton } from "@/components/BigButton";
+import { SpeechFallbackDialog } from "@/components/SpeechFallbackDialog";
 import { isSpeechSupported, speak, stopSpeak } from "@/lib/speech";
 
 export function InlineSpeakButton({ text, children = "听一听" }: { text: string; children?: string }) {
   const [speaking, setSpeaking] = useState(false);
+  const [showFallback, setShowFallback] = useState(false);
 
   function onClick() {
     if (speaking) {
@@ -15,7 +17,7 @@ export function InlineSpeakButton({ text, children = "听一听" }: { text: stri
     }
 
     if (!isSpeechSupported()) {
-      window.alert("不支持语音播报，请直接阅读文字");
+      setShowFallback(true);
       return;
     }
 
@@ -25,8 +27,11 @@ export function InlineSpeakButton({ text, children = "听一听" }: { text: stri
   }
 
   return (
-    <BigButton onClick={onClick} variant="secondary">
-      {speaking ? "停止播报" : children}
-    </BigButton>
+    <>
+      <BigButton onClick={onClick} variant="secondary">
+        {speaking ? "停止播报" : children}
+      </BigButton>
+      <SpeechFallbackDialog text={text} open={showFallback} onClose={() => setShowFallback(false)} />
+    </>
   );
 }

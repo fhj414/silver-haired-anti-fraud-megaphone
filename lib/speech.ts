@@ -4,6 +4,10 @@ export function isSpeechSupported() {
   return typeof window !== "undefined" && "speechSynthesis" in window && "SpeechSynthesisUtterance" in window;
 }
 
+export function isWeChatBrowser() {
+  return typeof navigator !== "undefined" && /MicroMessenger/i.test(navigator.userAgent);
+}
+
 export function stopSpeak() {
   if (!isSpeechSupported()) return;
   window.speechSynthesis.cancel();
@@ -11,7 +15,6 @@ export function stopSpeak() {
 
 export function speak(text: string) {
   if (!isSpeechSupported()) {
-    window.alert("不支持语音播报，请直接阅读文字");
     return false;
   }
 
